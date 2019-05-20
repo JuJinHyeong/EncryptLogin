@@ -2,24 +2,8 @@ import java.nio.ByteBuffer;
 
 public class SHA256 {
 
-    private String message;
-    private byte[] hashed_result;
-
-    public SHA256(String message){
-        this.message = message;
-        set_hash_value(message);
-    }
-
-    public byte[] get_hash_value(){
-        return hashed_result;
-    }
-
-    public void set_hash_value(String message){
-        hashed_result = hash(message.getBytes());
-    }
-
     // hash table.
-    private int[] K = {
+    private int[] k = {
             0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b,
             0x59f111f1, 0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01,
             0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7,
@@ -46,27 +30,29 @@ public class SHA256 {
     private int[] temp = new int[8];
 
     public byte[] hash(byte[] message){
-        // initialize hash values.
+        // let H = H0
         System.arraycopy(initHashValue, 0, h, 0, initHashValue.length);
 
         // initialize all words
         int[] words = byte2intArray(pad(message));
 
-        // enumerate all blocks
+        // enumerate all blocks (each containing 16 words)
         for (int i = 0, n = words.length / 16; i < n; ++i) {
 
             // initialize W from the block's words
             System.arraycopy(words, i * 16, w, 0, 16);
             for (int t = 16; t < w.length; ++t) {
-                w[t] = smallSig1(w[t - 2]) + w[t - 7] + smallSig0(w[t - 15]) + w[t - 16];
+                w[t] = smallSig1(w[t - 2]) + w[t - 7] + smallSig0(w[t - 15])
+                        + w[t - 16];
             }
 
-            // assign H to temp
+            // let TEMP = H
             System.arraycopy(h, 0, temp, 0, h.length);
 
             // operate on TEMP
             for (int t = 0; t < w.length; ++t) {
-                int t1 = temp[7] + bigSig1(temp[4]) + choose(temp[4], temp[5], temp[6]) + K[t] + w[t];
+                int t1 = temp[7] + bigSig1(temp[4])
+                        + choose(temp[4], temp[5], temp[6]) + k[t] + w[t];
                 int t2 = bigSig0(temp[0]) + majority(temp[0], temp[1], temp[2]);
                 System.arraycopy(temp, 0, temp, 1, temp.length - 1);
                 temp[4] += t1;
@@ -81,6 +67,7 @@ public class SHA256 {
         }
 
         return int2byteArray(h);
+
     }
 
     /**
@@ -124,10 +111,12 @@ public class SHA256 {
      */
     public int[] byte2intArray(byte[] bytes){
         ByteBuffer buf = ByteBuffer.wrap(bytes);
-        int[] result = new int[bytes.length / 8];
-        for(int i=0; i<result.length; i++){
+
+        int[] result = new int[bytes.length / Integer.BYTES];
+        for (int i = 0; i < result.length; i++) {
             result[i] = buf.getInt();
         }
+
         return result;
     }
 
@@ -139,9 +128,10 @@ public class SHA256 {
      */
     public byte[] int2byteArray(int[] ints){
         ByteBuffer buf = ByteBuffer.allocate(ints.length * Integer.BYTES);
-        for(int i=0; i<ints.length; i++){
+        for (int i = 0; i < ints.length; i++) {
             buf.putInt(ints[i]);
         }
+
         return buf.array();
     }
 
@@ -170,8 +160,7 @@ public class SHA256 {
         return (x & y) | (x & z) | (y & z);
     }
 
-    private static int bigSig0(int x)
-    {
+    private static int bigSig0(int x) {
         return Integer.rotateRight(x, 2)
                 ^ Integer.rotateRight(x, 13)
                 ^ Integer.rotateRight(x, 22);
