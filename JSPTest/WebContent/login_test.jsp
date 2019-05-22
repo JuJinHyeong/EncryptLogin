@@ -24,17 +24,13 @@
 	String pwStr = request.getParameter("passText");
 %>
 
-
-
 <body>
-
 	<%
-		DB.connect(idStr, pwStr);
-		
+		Integer result=DB.connect(idStr, pwStr);
+		if(result==1){
+			out.println("<script>alert('로그인이 완료되었습니다');</script>");
+		}
 	%>
-
-
-
 
 </body>
 

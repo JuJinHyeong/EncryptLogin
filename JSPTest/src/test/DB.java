@@ -7,7 +7,7 @@ import org.json.simple.JSONObject;
 public class DB {
 	
 
-	public static void connect(String id,String pw) {
+	public static Integer connect(String id,String pw) {
 		Connection con = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -16,6 +16,8 @@ public class DB {
 		String database = "test"; // MySQL DATABASE 이름
 		String user_name = "root"; // MySQL 서버 아이디
 		String password = "crypto13"; // MySQL 서버 비밀번호
+		
+		Integer confirm=0;
 
 		// 1.드라이버 로딩
 		try {
@@ -38,14 +40,18 @@ public class DB {
 			e.printStackTrace();
 		}
 		try {
+			pw=hash(pw);
 			String query = "SELECT Count(*) FROM user WHERE user_id=\"" + id + "\" AND user_password=\"" + pw+"\"";
 			stmt = con.createStatement();
 			rs = stmt.executeQuery(query.toString());
-			System.out.println("success");
-
+			
 			while(rs.next()) {
 				//JSONObject json=new JSONObject();
 				System.out.println(rs.getString(1));
+				if(rs.getInt(1)==1) {
+					System.out.println("success");
+					confirm=1;
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -56,6 +62,17 @@ public class DB {
 				con.close();
 		} catch (SQLException e) {
 		}
+		
+		return confirm;
 
+	}
+	public static String hash(String pw) {
+		SHA sha256 = new SHA();
+		byte[] arr = sha256.hash(pw.getBytes());
+		String result="";
+		for(int i=0; i<arr.length; i++){
+            result+=Integer.toString(arr[i] & 0xFF, 16);
+        }
+		return result;
 	}
 }
