@@ -5,7 +5,6 @@
 <head>
 
 <meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
-
 <title>Insert title here</title>
 
 </head>
@@ -16,6 +15,10 @@
 
 		이름 <input type="text" name="idText" />
 		비밀번호 <input type="text" name="passText" />
+		<input type="hidden" id="rsaPublicKeyModulus" value="${publicKeyModulus}">
+
+		<input type="hidden" id="rsaPublicKeyExponent" value="${publicKeyExponent}">
+	<input type="hidden" name="encPw" value="">
 
 		<p><input type="submit" value="입력 완료" />
 	</form>

@@ -2,12 +2,14 @@ package test;
 
 import java.sql.*;
 
-import org.json.simple.JSONObject;
+import javax.servlet.http.HttpSession;
+
 
 public class DB {
 	
 
 	public static Integer connect(String id,String pw) {
+
 		Connection con = null;
 		Statement stmt = null;
 		ResultSet rs = null;
